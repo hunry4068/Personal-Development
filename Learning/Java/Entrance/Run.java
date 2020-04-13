@@ -1,6 +1,6 @@
-package Entrance;
+package Learning.Java.Entrance;
 
-import Personal_Packages.*;
+import Learning.Java.Personal_Packages.*;
 
 public class Run{
     public static void main(String[] args) {
