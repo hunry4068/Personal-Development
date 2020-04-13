@@ -1,4 +1,4 @@
-package Personal_Packages;
+package Learning.Java.Personal_Packages;
 
 //external class
 public class Human{
