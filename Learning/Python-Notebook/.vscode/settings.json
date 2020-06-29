@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/Users/Eric/.pyenv/versions/pyvenv3.7.7-python-notebook/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+}

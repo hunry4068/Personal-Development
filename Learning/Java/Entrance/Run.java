@@ -4,6 +4,8 @@ import Learning.Java.Personal_Packages.*;
 
 public class Run{
     public static void main(String[] args) {
+        System.out.println("Initial count: " + Human.count);
+        
         // use default constructor and then set set name and age in run
         Human tupi = new Human();
         tupi.name = "Tupi";
