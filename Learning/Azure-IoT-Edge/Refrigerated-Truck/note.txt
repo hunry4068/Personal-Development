@@ -1,0 +1,40 @@
+API_TOKEN="SharedAccessSignature sr=5fe283e0-0f7a-43aa-89b8-44b8bc186f72&sig=SLGUyejdMazvfj6H2wKr8TOYgTsGoBuwj6wfQS99giM%3D&skn=tupi-admin&se=1624020424381"
+APP_NAME="store-manager-24242"
+
+az rest -m put -u https://$APP_NAME.azureiotcentral.com/api/preview/devices/storemon-sim-001 \
+--headers Authorization="$API_TOKEN" --body \
+'{
+  "instanceOf": "store_monitoring_device",
+  "simulated": true,
+  "displayName": "Simulated store monitoring device - 001",
+  "approved": true
+}'
+
+az rest -m put -u https://$APP_NAME.azureiotcentral.com/api/preview/devices/storemon-sim-003 \
+--headers Authorization="$API_TOKEN" --body \
+'{
+  "instanceOf": "store_monitoring_device",
+  "simulated": true,
+  "displayName": "Simulated store monitoring device - 003",
+  "approved": true
+}'
+
+az rest -m get -u https://$APP_NAME.azureiotcentral.com/api/preview/devices \
+--headers Authorization="$API_TOKEN" \
+--query 'value[].{ID:id, Type:instanceOf, Simulated:simulated}' -o table
+
+DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=storemanagement10609;AccountKey=ijoZguaWzp29V4qEIOZvZwudW5uKlvFMcrGFGythQgUghALWgkbreHCbruNLQmWLyW+7qLq2cbM7QDhHeW1bDw==
+az rest -m put -u https://$APP_NAME.azureiotcentral.com/api/preview/continuousDataExports/storagedataexport \
+--headers Authorization="$API_TOKEN" --body \
+'{
+    "displayName": "Export telemetry",
+    "endpoint": {
+        "type": "StorageEndpoint",
+        "connectionString": "'$STORAGE_CONNECTION_STRING'",
+        "name": "dataexport"
+    },
+    "enabled": true,
+    "sources": [
+        "telemetry"
+    ]
+}'
