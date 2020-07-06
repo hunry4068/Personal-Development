@@ -48,9 +48,7 @@ public class App {
             this.counter += 1;
     
             String msgString = new String(msg.getBytes(), Message.DEFAULT_IOTHUB_MESSAGE_CHARSET);
-            System.out.println(
-                   String.format("Received message %d: %s",
-                            this.counter, msgString));
+            System.out.println(String.format("Received message %d: %s", this.counter, msgString));
             if (context instanceof ModuleClient) {
                 try (JsonReader jsonReader = Json.createReader(new StringReader(msgString))) {
                     final JsonObject msgObject = jsonReader.readObject();
@@ -60,15 +58,20 @@ public class App {
                     // use threshold to decide whether trigger message update procedure
                     if (temperature >= threshold) {
                         ModuleClient client = (ModuleClient) context;
-                        System.out.println(
-                            String.format("Temperature above threshold %d. Sending message: %s",
-                            threshold, msgString));
+                        System.out.println(String.format("Temperature above threshold %d. Sending message: %s", threshold, msgString));
                         
-                        // create customerized message and send it into IoT Hub
                         //client.sendEventAsync(msg, eventCallback, msg, App.OUTPUT_NAME);
-                        String testMsgStr = String.format("Message body test: Over threshold machine temperature: %f", temperature);
-                        Message testMsg = new Message(testMsgStr);
-                        client.sendEventAsync(testMsg, eventCallback, msg, App.OUTPUT_NAME);
+                        // create customerized message and send it into IoT Hub
+                        Message newMsg = new Message(msgString);
+                        newMsg.setContentEncoding("UTF-8");
+                        newMsg.setContentTypeFinal("application/json");
+                        newMsg.setProperty("messageTitle", String.format("Machine temperature alert: over %d degree", threshold));
+                        newMsg.setProperty("messageNo", Integer.toString(this.counter));
+                        newMsg.setProperty("machineTemperature", Double.toString(temperature));
+                        newMsg.setProperty("routeTag", "Temperature-Message");
+
+                        client.sendEventAsync(newMsg, eventCallback, msg, App.OUTPUT_NAME);
+                        System.out.println("A new json message has been sent to the cloud storage.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
