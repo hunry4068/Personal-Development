@@ -73,16 +73,17 @@ public class App {
                         Message newMsg = new Message(msgString);
                         newMsg.setContentEncoding("UTF-8");
                         newMsg.setContentTypeFinal("application/json");
-                        newMsg.setProperty("messageTitle", String.format("Machine temperature alert: over %d degree", threshold));
+                        
+                        newMsg.setProperty("routeTag", "Temperature-Message");
+                        newMsg.setProperty("version", "1.2.8");
+                        newMsg.setProperty("environment", "Windows10");
+                        
+                        // newMsg.setProperty("messageTitle", String.format("Temperature\tAlert\tover\t%d\tdegree", threshold)); // need to be encode to escape invalid character
                         newMsg.setProperty("messageNo", Integer.toString(this.counter));
                         newMsg.setProperty("machineTemperature", Double.toString(temperature));
-                        newMsg.setProperty("routeTag", "Temperature-Message");
-                        // System.out.println(String.format("The message's Content Type is %s, outeTag is %s.", 
-                        //     newMsg.getContentType(), 
-                        //     newMsg.getProperty("routeTag")));
-                        
                         client.sendEventAsync(newMsg, eventCallback, msg, App.OUTPUT_NAME);
                         System.out.println("A new json message has been sent to the cloud storage.");
+                        // System.out.println(String.format("The message's Content Type is %s, outeTag is %s.", newMsg.getContentType(), newMsg.getProperty("routeTag")));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

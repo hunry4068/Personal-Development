@@ -58,7 +58,7 @@
         },
         "modules": {
           "JavaDemo": {
-            "version": "1.2",
+            "version": "1.2.8",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
