@@ -3,7 +3,7 @@ package com.edgemodule;
 import com.microsoft.azure.sdk.iot.device.*;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubConnectionStatus;
 
-//#region add: import extra packages
+//#region Demo: import JSON and Device Twin packages
 
 import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,18 +20,36 @@ import com.microsoft.azure.sdk.iot.device.DeviceTwin.TwinPropertyCallBack;
 
 //#endregion
 
+//#region IoTC: test for connecting with IoTC app via lucadruda Azure IoTCentral Device Client
+
+import com.github.lucadruda.iotc.device.IoTCClient;
+import com.github.lucadruda.iotc.device.callbacks.IoTCCallback;
+import com.github.lucadruda.iotc.device.enums.IOTC_CONNECT;
+
+//#endregion
+
 public class App {
     private static MessageCallbackMqtt msgCallback = new MessageCallbackMqtt();
     private static EventCallback eventCallback = new EventCallback();
     private static final String INPUT_NAME = "input1";
     private static final String OUTPUT_NAME = "output1";
     
-    //#region add: set initial threshold
+    //#region Demo: set initial threshold
 
     private static final String TEMP_THRESHOLD = "TemperatureThreshold";
     private static AtomicLong tempThreshold = new AtomicLong(25);
 
     //#endregion
+
+    //#region IoTC: set IoTC device connection information
+    
+    private static final IOTC_CONNECT IoTC_AuthType = IOTC_CONNECT.DEVICE_KEY;
+    private static String IoTC_ScopeId = "0ne00132CE0";
+    private static String IoTC_DeviceId = "09072020001";
+    private static String IoTC_SASToken = "X+MN5vdE5OiLFIBDY5+wgKwACN5rIRO4JlRtHdRyLI4=";
+    private static IoTCClient IoTCDeviceClient = new IoTCClient(IoTC_DeviceId, IoTC_ScopeId, IoTC_AuthType, IoTC_SASToken);
+
+    // #endregion
 
     protected static class EventCallback implements IotHubEventCallback {
         @Override
@@ -44,52 +62,61 @@ public class App {
         }
     }
 
+    // the main class to react the inputing message
     protected static class MessageCallbackMqtt implements MessageCallback {
         private int counter = 0;
 
         @Override
         public IotHubMessageResult execute(Message msg, Object context) {
             this.counter += 1;
-            
+
             String msgString = new String(msg.getBytes(), Message.DEFAULT_IOTHUB_MESSAGE_CHARSET);
             System.out.println(String.format("Received message %d: %s", this.counter, msgString));
-            
+
             if (context instanceof ModuleClient) {
-                //#region add: deserialize the received json message and filter it, then modify the response message and send it 
-                //        (can also do something after client.sendEventAsync)
                 
                 try (JsonReader jsonReader = Json.createReader(new StringReader(msgString))) {
                     final JsonObject msgObject = jsonReader.readObject();
                     double temperature = msgObject.getJsonObject("machine").getJsonNumber("temperature").doubleValue();
                     long threshold = App.tempThreshold.get();
                     
-                    if (temperature >= threshold) { //use threshold to decide whether trigger message update procedure
+                    if (temperature >= threshold) {
+                        //#region Demo: send event message via sendEventAsync to IoT Hub
+
                         ModuleClient client = (ModuleClient) context;
-                        System.out.println(String.format("Temperature above threshold %d. Sending message: %s", threshold, msgString));
-                        
-                        //client.sendEventAsync(msg, eventCallback, msg, App.OUTPUT_NAME);
-                        
-                        // create customerized message and send it into IoT Hub
+                        System.out.println(String.format("Machine temperature exceed threshold %d. Sending message to IoT Hub", threshold));
+
+                        // client.sendEventAsync(msg, eventCallback, msg, App.OUTPUT_NAME);
                         Message newMsg = new Message(msgString);
                         newMsg.setContentEncoding("UTF-8");
                         newMsg.setContentTypeFinal("application/json");
-                        
                         newMsg.setProperty("routeTag", "Temperature-Message");
-                        newMsg.setProperty("version", "1.2.8");
-                        newMsg.setProperty("environment", "Windows10");
-                        
-                        // newMsg.setProperty("messageTitle", String.format("Temperature\tAlert\tover\t%d\tdegree", threshold)); // need to be encode to escape invalid character
+                        newMsg.setProperty("moduleVer", "1.3.2");
+                        newMsg.setProperty("devEnv", "Windows10");
+                        // newMsg.setProperty("messageTitle", String.format("Temperature Alert: exceed %d degree", threshold)); // need to encode invalid json character
                         newMsg.setProperty("messageNo", Integer.toString(this.counter));
                         newMsg.setProperty("machineTemperature", Double.toString(temperature));
                         client.sendEventAsync(newMsg, eventCallback, msg, App.OUTPUT_NAME);
-                        System.out.println("A new json message has been sent to the cloud storage.");
-                        // System.out.println(String.format("The message's Content Type is %s, outeTag is %s.", newMsg.getContentType(), newMsg.getProperty("routeTag")));
+                        
+                        //#endregion
+                        
+                        // Can do something else e.g. sending message to ThingWorx via rest api
+                        //#region IoTC: send telemetry to IoTC device
+
+                        System.out.println(String.format("Send exceeded telemetry to IoTC device: %s", IoTC_DeviceId));
+                        IoTCCallback callback = new IoTCCallback() {
+                            @Override
+                            public void Exec(Object result) {
+                                System.out.println("Send telemetry with status:" + result);
+                            }
+                        };
+                        IoTCDeviceClient.SendTelemetry(msgString, callback);
+                        
+                        //#endregion
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                //#endregion
             }
 
             return IotHubMessageResult.COMPLETE;
@@ -98,9 +125,8 @@ public class App {
 
     protected static class ConnectionStatusChangeCallback implements IotHubConnectionStatusChangeCallback {
         @Override
-        public void execute(IotHubConnectionStatus status,
-                            IotHubConnectionStatusChangeReason statusChangeReason,
-                            Throwable throwable, Object callbackContext) {
+        public void execute(IotHubConnectionStatus status, IotHubConnectionStatusChangeReason statusChangeReason,
+                Throwable throwable, Object callbackContext) {
             String statusStr = "Connection Status: %s";
             switch (status) {
                 case CONNECTED:
@@ -122,7 +148,7 @@ public class App {
         }
     }
 
-    //#region add: define callback when changing the device twin property from vscode is fired
+    // #region Demo: define callback when a device twin property is changed
 
     protected static class DeviceTwinStatusCallBack implements IotHubEventCallback {
         @Override
@@ -130,7 +156,7 @@ public class App {
             System.out.println("IoT Hub responded to device twin operation with status " + status.name());
         }
     }
-    
+
     protected static class OnProperty implements TwinPropertyCallBack {
         @Override
         public void TwinPropertyCallBack(Property property, Object context) {
@@ -147,8 +173,8 @@ public class App {
             }
         }
     }
-    
-    //#endregion
+
+    // #endregion
 
     public static void main(String[] args) {
         try {
@@ -160,17 +186,24 @@ public class App {
             client.registerConnectionStatusChangeCallback(new ConnectionStatusChangeCallback(), null);
             client.open();
 
-            //#region add: register the device twin event
+            // #region Demo: register the device twin event
 
             client.startTwin(new DeviceTwinStatusCallBack(), null, new OnProperty(), null);
             Map<Property, Pair<TwinPropertyCallBack, Object>> onDesiredPropertyChange = new HashMap<Property, Pair<TwinPropertyCallBack, Object>>() {
                 {
-                    put(new Property(App.TEMP_THRESHOLD, null), new Pair<TwinPropertyCallBack, Object>(new OnProperty(), null));
+                    put(new Property(App.TEMP_THRESHOLD, null),
+                            new Pair<TwinPropertyCallBack, Object>(new OnProperty(), null));
                 }
             };
             client.subscribeToTwinDesiredProperties(onDesiredPropertyChange);
             client.getTwin();
-            
+
+            // #endregion
+
+            // #region IoTC: connect with IoTC device client
+
+            IoTCDeviceClient.Connect();
+
             //#endregion
 
         } catch (Exception e) {

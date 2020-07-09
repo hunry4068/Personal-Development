@@ -24,6 +24,13 @@
                 <artifactId>iot-device-client</artifactId>
                 <version>${azure.iot.device.client.version}</version>
              </dependency>
+             
+             <dependency>
+                <groupId>com.github.lucadruda</groupId>
+                <artifactId>iotc-java-device-client</artifactId>
+                <version>1.0.4</version>
+                <!--This is the current version number as of the writing of this document. Yours may be different.-->
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -31,6 +38,13 @@
         <dependency>
             <groupId>com.microsoft.azure.sdk.iot</groupId>
             <artifactId>iot-device-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.lucadruda</groupId>
+            <artifactId>iotc-java-device-client</artifactId>
+            <version>1.0.4</version>
+            <!--This is the current version number as of the writing of this document. Yours may be different.-->
         </dependency>
     </dependencies>
 
