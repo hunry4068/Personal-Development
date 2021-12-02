@@ -1,0 +1,12 @@
+/Users/Eric/Documents/Personal-Development/Learning/C#/bin/Debug/netcoreapp3.1/C#.deps.json
+/Users/Eric/Documents/Personal-Development/Learning/C#/bin/Debug/netcoreapp3.1/C#.runtimeconfig.json
+/Users/Eric/Documents/Personal-Development/Learning/C#/bin/Debug/netcoreapp3.1/C#.runtimeconfig.dev.json
+/Users/Eric/Documents/Personal-Development/Learning/C#/bin/Debug/netcoreapp3.1/C#.dll
+/Users/Eric/Documents/Personal-Development/Learning/C#/bin/Debug/netcoreapp3.1/C#.pdb
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.csprojAssemblyReference.cache
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.AssemblyInfoInputs.cache
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.AssemblyInfo.cs
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.csproj.CoreCompileInputs.cache
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.dll
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.pdb
+/Users/Eric/Documents/Personal-Development/Learning/C#/obj/Debug/netcoreapp3.1/C#.genruntimeconfig.cache
